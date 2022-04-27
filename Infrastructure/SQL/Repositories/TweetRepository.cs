@@ -113,12 +113,12 @@ namespace Infrastructure.SQL.Repositories
             return Task.FromResult<PhotoTweet>(null);
         }
 
-        public Task<List<Tweet>> MostTaggedTweet()
+        public Task<List<ShowMostTaggedTweetModel>> MostTaggedTweet()
         {
             var sqlConnection = new SqlConnection(_connectionString);
-            var result = sqlConnection.Query<Tweet>("MostTaggedTweet", commandType: CommandType.StoredProcedure)
+            var result = sqlConnection.Query<ShowMostTaggedTweetModel>("MostTaggedTweet", commandType: CommandType.StoredProcedure)
                 .ToList();
-            return Task.FromResult<List<Tweet>>(result);
+            return Task.FromResult(result);
         }
 
         public async Task<bool> EditTweet(int id, string text)

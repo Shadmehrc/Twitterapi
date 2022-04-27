@@ -91,7 +91,7 @@ namespace Application.Services
             return tweetWithPhoto;
         }
 
-        public async Task<List<Tweet>> MostTaggedTweet()
+        public async Task<List<ShowMostTaggedTweetModel>> MostTaggedTweet()
         {
             var result = await _iTweetRepository.MostTaggedTweet();
             return result;

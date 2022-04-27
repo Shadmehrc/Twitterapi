@@ -47,7 +47,7 @@ BEGIN
            Tweet.TagCount,
            Tag.Word
     FROM dbo.Tweets AS Tweet WITH (NOLOCK)
-        INNER JOIN dbo.Tags Tag WITH (NOLOCK)
+        INNER JOIN dbo.TweetTags Tag WITH (NOLOCK)
             ON Tweet.Id = Tag.TweetId
     WHERE Tweet.TagCount =
     (

@@ -18,7 +18,7 @@ namespace Application.RepositoryInterfaces
         public Task<bool> DeleteTweet(int id);
         public Task<Tweet> GetTextTweet(int id);
         public Task<PhotoTweet> GetPhotoTweet(int id);
-        public Task<List<Tweet>> MostTaggedTweet();
+        public Task<List<ShowMostTaggedTweetModel>> MostTaggedTweet();
         public Task<List<Tweet>> MostViewedTweet();
         public Task<List<Tweet>> MostLikedTweet();
         public Task<bool> LikeTweet(int id);
