@@ -21,7 +21,8 @@ namespace Application.Services
 
         public async Task<bool> Create(string word)
         {
-            var result = await _iTagRepository.Create(word);
+             var tag = new Tag() { Word = word };
+             var result = await _iTagRepository.Create(tag);
             return result;
         }
 

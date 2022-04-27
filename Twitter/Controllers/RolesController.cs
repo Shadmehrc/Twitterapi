@@ -26,14 +26,8 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> AddRole([FromQuery] AddRoleModel role)
         {
             var result = await _iRolRoleCrudService.AddRole(role);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("Role successfully added."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Some error happened."));
-            }
+            return result ? new ApiResponse().Success("Role successfully added.")
+                : new ApiResponse().FailedToFind("Some error happened.");
         }
 
         [HttpGet("ShowRoles")]
@@ -47,14 +41,8 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> AddRoleToUser([FromQuery] AddRoleToUserModel model)
         {
             var result = await _iRolRoleCrudService.AddRoleToUser(model);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("Role successfully added to the user."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Some error happened."));
-            }
+            return result ? new ApiResponse().Success("Role successfully added to the user.")
+                : new ApiResponse().FailedToFind("Some error happened.");
         }
 
         [HttpGet("UserRoles")]

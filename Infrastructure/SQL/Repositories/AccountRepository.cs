@@ -33,7 +33,7 @@ namespace Infrastructure.SQL.Repositories
 
         public Task<bool> Logout()
         {
-            return Task.FromResult(true);
+            return Task.FromResult(true);//
         }
 
         public Task<User> JwtToken(AuthenticationJwtDTO model)

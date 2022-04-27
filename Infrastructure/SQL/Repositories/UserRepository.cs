@@ -19,14 +19,12 @@ namespace Infrastructure.SQL.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly DatabaseContext _context;
-        private readonly VisitSummaryTweet _visitSummaryTweet;
         private readonly UserManager<User> _userManager;
 
 
-        public UserRepository(DatabaseContext databaseContext, VisitSummaryTweet visitSummaryTweet, UserManager<User> user)
+        public UserRepository(DatabaseContext databaseContext, UserManager<User> user)
         {
             _context = databaseContext;
-            _visitSummaryTweet = visitSummaryTweet;
             _userManager = user;
         }
 
@@ -37,10 +35,9 @@ namespace Infrastructure.SQL.Repositories
         }
 
 
-        public Task<bool> CreateUser(UserRegisterModel User)
+        public Task<bool> CreateUser(CreateUserModelDTO user)
         {
-            var user = new User() { FullName = User.FullName, Email = User.Email, UserName = User.UserName };
-            var result = _userManager.CreateAsync(user, User.Password).Result;
+            var result = _userManager.CreateAsync(user.User, user.Password).Result;
             if (result.Succeeded)
             {
                 return Task.FromResult(true);
@@ -52,13 +49,12 @@ namespace Infrastructure.SQL.Repositories
 
         }
 
-        public async Task<bool> AddClaimToUser(AddClaimToUserModel model)
+        public async Task<bool> AddClaimToUser(AddClaimToUserModelDTO model)
         {
             var user = _userManager.FindByNameAsync(model.UserName).Result;
             if (user != null)
             {
-                var claim = new Claim(model.ClaimType, model.ClaimValue, ClaimValueTypes.String);
-                var result = _userManager.AddClaimAsync(user, claim).Result;
+                var result = _userManager.AddClaimAsync(user, model.Claim).Result;
                 return await Task.FromResult(result.Succeeded);
             }
             else
@@ -74,11 +70,6 @@ namespace Infrastructure.SQL.Repositories
             var result = _userManager.GetClaimsAsync(user).Result;
             return Task.FromResult(result);
 
-        }
-
-        public async Task<User> Find(int id)
-        {
-            return await FindUser(id);
         }
 
         public async Task<bool> EditUser(UserEditModel userModel)
@@ -114,20 +105,12 @@ namespace Infrastructure.SQL.Repositories
 
         }
 
-        public async Task<List<string>> SearchUser(string id)
+        public Task<User> SearchUserTweets(string id)
         {
             //var users = _context.Users.ToList().Take(10).Skip(5).ToList();
             var user = _context.Users.Include(x => x.Tweets).FirstOrDefault(x => x.Id == id);
 
-            var tweetsText = new List<string>();
-            if (user != null)
-                foreach (var item in user.Tweets)
-                {
-                    tweetsText.Add(item.Text);
-                }
-
-            var fixedTweets = await _visitSummaryTweet.CheckTweets(tweetsText);
-            return fixedTweets;
+            return Task.FromResult<User>(user);
         }
     }
 }

@@ -18,6 +18,6 @@ namespace Application.ServiceInterfaces
         public Task<User> Find(int id);
         public Task<bool> EditUser(UserEditModel userModel);
         public Task<bool> DeleteUser(int id);
-        public Task<List<string>> SearchUser(string name);
+        public Task<List<string>> SearchUserTweets(string name);
     }
 }

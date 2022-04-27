@@ -11,7 +11,7 @@ namespace Application.RepositoryInterfaces
     public interface ITagRepository
     {
         public Task<Tag> FindHelper(int id);
-        public Task<bool> Create(string word);
+        public Task<bool> Create(Tag tag);
         public Task<Tag> Get(int id);
         public Task<bool> Edit(EditTweetDTO model);
         public Task<bool> Delete(int id);

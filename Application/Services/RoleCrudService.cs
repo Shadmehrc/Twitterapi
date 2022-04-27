@@ -21,13 +21,25 @@ namespace Application.Services
 
         public async Task<bool> AddRole(AddRoleModel newRole)
         {
-            var result = await _iRoleRepository.AddRole(newRole);
+            var role = new Role()
+            {
+                Name = newRole.RoleName,
+                Description = newRole.RoleDescription,
+            };
+            var result = await _iRoleRepository.AddRole(role);
+
             return result;
         }
 
         public async Task<List<ShowRolesModel>> ShowRoles()
         {
-            var result = await _iRoleRepository.ShowRoles();
+            var roles = await _iRoleRepository.ShowRoles();
+            var result = roles.Select(x => new ShowRolesModel
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Name = x.Name,
+            }).ToList();
             return result;
         }
 

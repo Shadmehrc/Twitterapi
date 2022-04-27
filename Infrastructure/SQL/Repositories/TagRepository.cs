@@ -24,9 +24,8 @@ namespace Infrastructure.SQL.Repositories
             var result = _context.Tags.FirstOrDefault(x => x.Id == id);
             return Task.FromResult(result);
         }
-        public async Task<bool> Create(string word)
+        public async Task<bool> Create(Tag tag)
         {
-            var tag = new Tag() { Word = word };
             await _context.AddAsync(tag);
             await _context.SaveChangesAsync();
             return true;

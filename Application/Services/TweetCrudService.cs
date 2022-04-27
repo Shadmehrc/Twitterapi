@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,16 +26,39 @@ namespace Application.Services
             _iTweetRepository = iTweetRepository;
         }
 
-        public async Task<bool> CreateTextTweet(TweetPostModelView model)
+        public async Task<bool> CreateTextTweet(TweetPostModelView tweetModel)
         {
+            var tweet = new Tweet()
+            {
+                Text = tweetModel.TweetText,
+                UserId = tweetModel.UserId,
+            };
+            var model = new CreateTextTweetModel()
+            {
+                TagsWords = tweetModel.Tags,
+                Tweet = tweet
+            };
             var result = await _iTweetRepository.CreateTextTweet(model);
+
             return result;
         }
 
         public async Task<bool> CreatePhotoTweet(CreatePhotoTweetModelDTO model)
         {
-            var result = await _iTweetRepository.CreatePhotoTweet(model);
-            return result;
+            if (model.Photo != null)
+            {
+                var stream = new FileStream(model.Photo.FileName, FileMode.Create);
+                await model.Photo.CopyToAsync(stream);
+                var tweet = new PhotoTweet()
+                {
+                    PhotoAddress = stream.Name,
+                    UserId = model.UserId
+                };
+                var result = await _iTweetRepository.CreatePhotoTweet(tweet);
+                return result;
+            }
+
+            return false;
         }
 
         public async Task<bool> DeleteTweet(int id)
@@ -57,10 +81,14 @@ namespace Application.Services
             return result;
         }
 
-        public Task<ShowPhotoModel> GetPhotoTweet(int id)
+        public async Task<ShowPhotoModel> GetPhotoTweet(int id)
         {
-            var result = _iTweetRepository.GetPhotoTweet(id);
-            return result;
+            var result = await _iTweetRepository.GetPhotoTweet(id);
+            var tweetWithPhoto = new ShowPhotoModel()
+            {
+                Photo = await File.ReadAllBytesAsync(result.PhotoAddress)
+            };
+            return tweetWithPhoto;
         }
 
         public async Task<List<Tweet>> MostTaggedTweet()
@@ -83,8 +111,20 @@ namespace Application.Services
 
         public async Task<SearchTweetByIdModelView> GetTextTweet(int id)
         {
-            var result = await _iTweetRepository.GetTextTweet(id);
-            return result;
+            var tweet = await _iTweetRepository.GetTextTweet(id);
+            var tagText = new List<string>();
+            foreach (var item in tweet.Tags)
+                tagText.Add(item.Word);
+
+            var model = new SearchTweetByIdModelView()
+            {
+                TweetText = tweet.Text,
+                Tags = tagText,
+                TweetViewCount = tweet.TweetViewCount,
+                TagCount = tweet.TagCount,
+                UserId = tweet.UserId,
+            };
+            return model;
         }
 
         public async Task<bool> LikeTweet(int id)

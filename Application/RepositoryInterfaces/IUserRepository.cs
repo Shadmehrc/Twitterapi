@@ -12,12 +12,11 @@ namespace Application.RepositoryInterfaces
     public interface IUserRepository
     {
         public Task<User> FindUser(int id);
-        public Task<bool> CreateUser(UserRegisterModel user);
-        public Task<bool> AddClaimToUser(AddClaimToUserModel model);
+        public Task<bool> CreateUser(CreateUserModelDTO user);
+        public Task<bool> AddClaimToUser(AddClaimToUserModelDTO model);
         public Task<IList<Claim>> UserClaims(string name);
-        public Task<User> Find(int id);
         public Task<bool> EditUser(UserEditModel userModel);
         public Task<bool> DeleteUser(int id);
-        public Task<List<string>> SearchUser(string name);
+        public Task<User> SearchUserTweets(string name);
     }
 }

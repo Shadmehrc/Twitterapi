@@ -26,69 +26,45 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> Create([FromQuery] UserRegisterModel user)
         {
             var result = await _iUserCrudService.CreateUser(user);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success(result));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("User already exists"));
-            }
+            return result ? new ApiResponse().Success("User successfully registered.")
+                : new ApiResponse().FailedToFind("Some error happened");
         }
 
 
         [HttpGet("/ShowUserTweets")]
         public async Task<IActionResult> Search(string id)
         {
-            var user = await _iUserCrudService.SearchUser(id);
+            var user = await _iUserCrudService.SearchUserTweets(id);
             return Ok(user);
         }
         [HttpPost("AddClaimToUser")]
         public async Task<IActionResult> AddClaim([FromQuery] AddClaimToUserModel model)
         {
             var result = await _iUserCrudService.AddClaimToUser(model);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("Claim sucessfully added to user."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("User not found."));
-            }
-            return Ok();
+
+            return result ? new ApiResponse().Success("Claim successfully added to user.")
+                : new ApiResponse().FailedToFind("Some error happened");
         }
 
         [HttpGet("UserClaims")]
-        public async Task<IActionResult> UserClaims(string name)
+        public async Task<IActionResult> UserClaims(string userName)
         {
-            var result = await _iUserCrudService.UserClaims(name);
+            var result = await _iUserCrudService.UserClaims(userName);
             return Ok(result);
         }
         [HttpPut("EditUser")]
         public async Task<IActionResult> Edit([FromQuery] UserEditModel user)
         {
             var result = await _iUserCrudService.EditUser(user);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("User successfully edited."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("User not found."));
-            }
+            return result ? new ApiResponse().Success("User successfully edited.")
+                : new ApiResponse().FailedToFind("User not found.");
         }
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _iUserCrudService.DeleteUser(id);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("User successfully deleted."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("User not found."));
-            }
+            return result ? new ApiResponse().Success("User successfully deleted.")
+                : new ApiResponse().FailedToFind("User not found.");
         }
 
     }

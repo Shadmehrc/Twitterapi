@@ -33,7 +33,6 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> Post([FromQuery] AuthenticationJwtDTO model)
         {
             var result = await _accountManageService.JwtToken(model);
-
             return Ok(result);
         }
 
@@ -41,28 +40,16 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> Login([FromQuery] UserLoginModel user)
         {
             var result = await _accountManageService.Login(user);
-            if (result == true)
-            {
-                return Ok(new ApiResponse().Success("Successfully logged in."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Some error happened"));
-            }
+            return result ? new ApiResponse().Success("Successfully logged in.")
+                : new ApiResponse().FailedToFind("Some error happened.");
         }
 
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
             var result = await _accountManageService.Logout();
-            if (result == true)
-            {
-                return Ok(new ApiResponse().Success("Successfully logged out."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Some error happened"));
-            }
+            return result ? new ApiResponse().Success("Successfully logged out.")
+                : new ApiResponse().FailedToFind("Some error happened.");
         }
 
     }

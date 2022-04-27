@@ -22,13 +22,8 @@ namespace Infrastructure.SQL.Repositories
             _userManager = userManager;
         }
 
-        public Task<bool> AddRole(AddRoleModel newRole)
+        public Task<bool> AddRole(Role role)
         {
-            var role = new Role()
-            {
-                Name = newRole.RoleName,
-                Description = newRole.RoleDescription,
-            };
             var result = _roleManager.CreateAsync(role).Result;
             if (result.Succeeded)
             {
@@ -40,15 +35,9 @@ namespace Infrastructure.SQL.Repositories
             }
 
         }
-        public Task<List<ShowRolesModel>> ShowRoles()
+        public Task<List<Role>> ShowRoles()
         {
-            var result = _roleManager.Roles.Select(x => new ShowRolesModel
-            {
-                Id = x.Id,
-                Description = x.Description,
-                Name = x.Name,
-            }).ToList();
-
+            var result = _roleManager.Roles.ToList();
             return Task.FromResult(result);
         }
 

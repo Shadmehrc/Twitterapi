@@ -43,6 +43,7 @@ namespace Infrastructure.SQL.Repositories
             }
             return result;
         }
+
         public async Task<List<TweetTags>> CreateTagsForTweet(List<string> model)
         {
             var tags = new List<Tag>();
@@ -70,22 +71,16 @@ namespace Infrastructure.SQL.Repositories
 
             return tweetTags;
         }
-        public async Task<bool> CreateTextTweet(TweetPostModelView model)
+        public async Task<bool> CreateTextTweet(CreateTextTweetModel model)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == model.UserId);
-            var tags = await CreateTagsForTweet(model.Tags);
+            var user = _context.Users.FirstOrDefault(x => x.Id == model.Tweet.UserId);
+            var tags = await CreateTagsForTweet(model.TagsWords);
 
             if (user != null)
             {
-                var tweet = new Tweet()
-                {
-                    Text = model.TweetText,
-                    UserId = model.UserId,
-                    Tags = tags,
-                    TagCount = tags.Count,
-                };
-
-                _context.Add(tweet);
+                model.Tweet.Tags = tags;
+                model.Tweet.TagCount = tags.Count;
+                _context.Add(model.Tweet);
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -95,41 +90,27 @@ namespace Infrastructure.SQL.Repositories
             }
         }
 
-        public async Task<bool> CreatePhotoTweet(CreatePhotoTweetModelDTO model)
+        public async Task<bool> CreatePhotoTweet(PhotoTweet model)
         {
             var user = _context.Users.FirstOrDefault(x => x.Id == model.UserId);
             if (user != null)
             {
-                if (model.Photo != null)
-                {
-                    var stream = new FileStream(model.Photo.FileName, FileMode.Create);
-                    await model.Photo.CopyToAsync(stream);
-                    var tweet = new PhotoTweet()
-                    {
-                        PhotoAddress = stream.Name,
-                        UserId = model.UserId
-                    };
-                    await _context.PhotoTweets.AddAsync(tweet);
-                    await _context.SaveChangesAsync();
-                    return true;
-                }
+                await _context.PhotoTweets.AddAsync(model);
+                await _context.SaveChangesAsync();
+                return true;
             }
             return false;
         }
 
-        public async Task<ShowPhotoModel> GetPhotoTweet(int id)
+        public Task<PhotoTweet> GetPhotoTweet(int id)
         {
             var tweet = _context.PhotoTweets.FirstOrDefault(x => x.Id == id);
             if (tweet != null && tweet.PhotoAddress != null)
             {
-                var tweetWithPhoto = new ShowPhotoModel()
-                {
-                    Photo = await File.ReadAllBytesAsync(tweet.PhotoAddress)
-                };
-                return tweetWithPhoto;
+                return Task.FromResult(tweet);
             }
 
-            return null;
+            return Task.FromResult<PhotoTweet>(null);
         }
 
         public Task<List<Tweet>> MostTaggedTweet()
@@ -169,26 +150,14 @@ namespace Infrastructure.SQL.Repositories
             }
         }
 
-        public async Task<SearchTweetByIdModelView> GetTextTweet(int id)
+        public async Task<Tweet> GetTextTweet(int id)
         {
             var tweet = _context.Tweets.Include(x => x.Tags).FirstOrDefault(x => x.Id == id);
             if (tweet != null)
             {
                 tweet.TweetViewCount += 1;
-                var tagText = new List<string>();
-                foreach (var item in tweet.Tags)
-                    tagText.Add(item.Word);
-
-                var model = new SearchTweetByIdModelView()
-                {
-                    TweetText = tweet.Text,
-                    Tags = tagText,
-                    TweetViewCount = tweet.TweetViewCount,
-                    TagCount = tweet.TagCount,
-                    UserId = tweet.UserId,
-                };
                 await _context.SaveChangesAsync();
-                return model;
+                return tweet;
             }
             else
             {

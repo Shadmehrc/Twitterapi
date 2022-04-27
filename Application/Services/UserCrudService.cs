@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.RepositoryInterfaces;
 using Application.ServiceInterfaces;
+using Application.Services.Common;
 using Core.Entities;
 using Core.Models;
 
@@ -14,21 +15,35 @@ namespace Application.Services
     public class UserCrudService : IUserCrudService
     {
         private readonly IUserRepository _iUserRepository;
-
-        public UserCrudService(IUserRepository iUserRepository)
+        private readonly VisitSummaryTweet __visitSummaryTweet;
+        public UserCrudService(IUserRepository iUserRepository, VisitSummaryTweet visitSummaryTweet)
         {
             _iUserRepository = iUserRepository;
+            __visitSummaryTweet = visitSummaryTweet;
         }
 
         public async Task<bool> AddClaimToUser(AddClaimToUserModel model)
         {
-            var result = await _iUserRepository.AddClaimToUser(model);
+
+            var claim = new Claim(model.ClaimType, model.ClaimValue, ClaimValueTypes.String);
+            var user = new AddClaimToUserModelDTO()
+            {
+                Claim = claim,
+                UserName = model.UserName
+            };
+            var result = await _iUserRepository.AddClaimToUser(user);
             return result;
         }
 
-        public async Task<bool> CreateUser(UserRegisterModel user)
+        public async Task<bool> CreateUser(UserRegisterModel model)
         {
-            var result = await _iUserRepository.CreateUser(user);
+            var user = new User() { FullName = model.FullName, Email = model.Email, UserName = model.UserName };
+            var userModel = new CreateUserModelDTO()
+            {
+                User = user,
+                Password = model.Password
+            };
+            var result = await _iUserRepository.CreateUser(userModel);
             return result;
         }
 
@@ -46,7 +61,7 @@ namespace Application.Services
 
         public async Task<User> Find(int id)
         {
-            var result = await _iUserRepository.Find(id);
+            var result = await _iUserRepository.FindUser(id);
             return result;
         }
 
@@ -55,11 +70,20 @@ namespace Application.Services
             var result = await _iUserRepository.FindUser(id);
             return result;
         }
-        public async Task<List<string>> SearchUser(string name)
+        public async Task<List<string>> SearchUserTweets(string id)
         {
-            var result = await _iUserRepository.SearchUser(name);
-            return result;
+            var user = await _iUserRepository.SearchUserTweets(id);
+
+            var tweetsText = new List<string>();
+            if (user != null)
+                foreach (var item in user.Tweets)
+                {
+                    tweetsText.Add(item.Text);
+                }
+            var fixedTweets = await __visitSummaryTweet.CheckTweets(tweetsText);
+            return fixedTweets;
         }
+
 
         public async Task<IList<Claim>> UserClaims(string name)
         {

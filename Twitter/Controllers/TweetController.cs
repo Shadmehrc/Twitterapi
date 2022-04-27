@@ -56,6 +56,7 @@ namespace Endpoint.Controllers
             {
                 return Ok(new ApiResponse().FailedToFind("Tweet not found"));
             }
+
         }
         [HttpGet("ShowPhotoTweet")]
         public async Task<IActionResult> GetPhotoTweet(int id)
@@ -72,14 +73,8 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> Edit(int id, string text)
         {
             var result = await _iTweetCrudService.EditTweet(id, text);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("Tweet successfully edited."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Tweet not found."));
-            }
+            return result ? new ApiResponse().Success("Tweet successfully edited")
+                : new ApiResponse().FailedToFind("User Not found");
 
         }
 
@@ -87,29 +82,17 @@ namespace Endpoint.Controllers
         public async Task<IActionResult> LikeTweet(int id)
         {
             var result = await _iTweetCrudService.LikeTweet(id);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("Tweet Liked"));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Tweet Not found"));
-            }
-
+            return result ? new ApiResponse().Success("Tweet Liked")
+                : new ApiResponse().FailedToFind("Tweet Not found");
         }
 
         [HttpDelete("DeleteTweet")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _iTweetCrudService.DeleteTweet(id);
-            if (result)
-            {
-                return Ok(new ApiResponse().Success("Tweet successfully deleted."));
-            }
-            else
-            {
-                return Ok(new ApiResponse().FailedToFind("Tweet not found."));
-            }
+
+            return result ? new ApiResponse().Success("Tweet successfully deleted.")
+                : new ApiResponse().FailedToFind("Tweet not found.");
         }
 
         [HttpGet("MostTaggedTweet")]
