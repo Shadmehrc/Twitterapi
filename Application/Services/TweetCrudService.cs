@@ -132,5 +132,11 @@ namespace Application.Services
             var result = await _iTweetRepository.LikeTweet(id);
             return result;
         }
+
+        public async Task<bool> Retweet(RetweetModel retweetModel)
+        {
+            var result = await _iTweetRepository.Retweet(retweetModel);
+            return result;
+        }
     }
 }

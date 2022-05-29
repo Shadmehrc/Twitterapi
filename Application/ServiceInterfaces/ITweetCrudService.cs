@@ -22,5 +22,6 @@ namespace Application.ServiceInterfaces
         public Task<List<Tweet>> MostViewedTweet();
         public Task<List<Tweet>> MostLikedTweet();
         public Task<bool> LikeTweet(int id);
+        public Task<bool> Retweet(RetweetModel retweetModel);
     }
 }

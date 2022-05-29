@@ -43,6 +43,13 @@ namespace Endpoint.Controllers
                 : new ApiResponse().FailedToFind("User Not found");
         }
 
+        [HttpPost]
+        [Route("Retweet")]
+        public async Task<IActionResult> Retweet([FromQuery] RetweetModel retweetModel)
+        {
+            var result = await _iTweetCrudService.Retweet(retweetModel);
+            return result ? new ApiResponse().Success(true) : new ApiResponse().FailedToFind("Tweet or user not found");
+        }
 
         [HttpGet("ShowTextTweet")]
         public async Task<IActionResult> Get(int id)

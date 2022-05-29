@@ -14,11 +14,10 @@ namespace Core.Entities
         public string Text { get; set; }
         public User User { get; set; }
         public string UserId { get; set; }
-        public ICollection<TweetTags> Tags  { get; set; }
+        public List<TweetTags> Tags { get; set; } = new List<TweetTags>();
         public int TagCount { get; set; } = 0;
         public int TweetViewCount { get; set; } = 1;
-        //[NotMapped]
-        //public IFormFile Photo { get; set; }
         public int Likes { get; set; } = 0;
+       // public ICollection<string> UserIdsForTag { get; set; }
     }
 }

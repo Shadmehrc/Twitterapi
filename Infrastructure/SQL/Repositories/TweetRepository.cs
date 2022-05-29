@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -11,6 +12,8 @@ using Core.Entities;
 using Core.Models;
 using Dapper;
 using Infrastructure.SQL.Context;
+using Mapster;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -42,6 +45,32 @@ namespace Infrastructure.SQL.Repositories
                 await _context.SaveChangesAsync();
             }
             return result;
+        }
+
+        public async Task<bool> Retweet(RetweetModel retweetModel)
+        {
+            var tweet = _context.Tweets.FirstOrDefault(x => x.Id == retweetModel.TweetId);
+            var user = _context.Users.FirstOrDefault(x => x.Id == retweetModel.UserId);
+            if (tweet != null && user != null)
+            {
+                var newTweet = new Tweet()
+                {
+                    TagCount = tweet.TagCount,
+                    Likes = tweet.Likes,
+                    Tags = tweet.Tags,
+                    TweetViewCount = tweet.TweetViewCount,
+                    Text = tweet.Text,
+                    UserId = tweet.UserId,
+                    User = user,
+                };
+                var result = await CreateTagsForTweet(retweetModel.tagRetweet);
+                newTweet.Tags.AddRange(result);
+                _context.Add(newTweet);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+                return false;
         }
 
         public async Task<List<TweetTags>> CreateTagsForTweet(List<string> model)
