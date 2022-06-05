@@ -4,14 +4,16 @@ using Infrastructure.SQL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220601163839_addEntityNotifsasdfdasdfg")]
+    partial class addEntityNotifsasdfdasdfg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,11 +32,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -348,15 +348,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Core.Entities.Notification", b =>
-                {
-                    b.HasOne("Core.Entities.User", "User")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Core.Entities.PhotoTweet", b =>
                 {
                     b.HasOne("Core.Entities.User", "User")
@@ -453,8 +444,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.User", b =>
                 {
-                    b.Navigation("Notifications");
-
                     b.Navigation("PhotoTweets");
 
                     b.Navigation("Tweets");

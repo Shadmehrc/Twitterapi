@@ -52,6 +52,12 @@ namespace Endpoint.Controllers
             var result = await _iUserCrudService.UserClaims(userName);
             return Ok(result);
         }
+        [HttpGet("UserNotifications")]
+        public async Task<IActionResult> UserNotifications(string userId)
+        {
+            var result =await _iUserCrudService.GetUserNotifications(userId);
+            return Ok(result);
+        }
         [HttpPut("EditUser")]
         public async Task<IActionResult> Edit([FromQuery] UserEditModel user)
         {

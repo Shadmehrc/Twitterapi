@@ -18,6 +18,6 @@ namespace Core.Entities
         public int TagCount { get; set; } = 0;
         public int TweetViewCount { get; set; } = 1;
         public int Likes { get; set; } = 0;
-       // public ICollection<string> UserIdsForTag { get; set; }
+        public ICollection<UserTagged> UserTagged { get; set; }
     }
 }

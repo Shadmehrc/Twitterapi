@@ -35,7 +35,6 @@ namespace Infrastructure.SQL.Repositories
             _context = databaseContext;
             _connectionString = configuration["connection"];
         }
-
         public async Task<Tweet> FindHelper(int id)
         {
             var result = _context.Tweets.FirstOrDefault(x => x.Id == id);
@@ -46,7 +45,6 @@ namespace Infrastructure.SQL.Repositories
             }
             return result;
         }
-
         public async Task<bool> Retweet(RetweetModel retweetModel)
         {
             var tweet = _context.Tweets.FirstOrDefault(x => x.Id == retweetModel.TweetId);
@@ -72,7 +70,13 @@ namespace Infrastructure.SQL.Repositories
             else
                 return false;
         }
-
+        public Task<List<string>> FindUserTaggedTweets(string userId)
+        {
+            var sqlConnection = new SqlConnection(_connectionString);
+            var result = sqlConnection.Query<string>("FindUserTaggedTweets", new { TweetId = userId },
+                commandType: CommandType.StoredProcedure).ToList();
+            return Task.FromResult(result);
+        }
         public async Task<List<TweetTags>> CreateTagsForTweet(List<string> model)
         {
             var tags = new List<Tag>();
@@ -100,17 +104,18 @@ namespace Infrastructure.SQL.Repositories
 
             return tweetTags;
         }
+
         public async Task<bool> CreateTextTweet(CreateTextTweetModel model)
         {
             var user = _context.Users.FirstOrDefault(x => x.Id == model.Tweet.UserId);
             var tags = await CreateTagsForTweet(model.TagsWords);
-
             if (user != null)
             {
                 model.Tweet.Tags = tags;
                 model.Tweet.TagCount = tags.Count;
-                _context.Add(model.Tweet);
-                await _context.SaveChangesAsync();
+                model.Tweet.UserTagged = model.UserTaggeds;
+                _context.Add(model.Tweet); 
+                var rowChangeCount =await _context.SaveChangesAsync();
                 return true;
             }
             else
@@ -118,7 +123,6 @@ namespace Infrastructure.SQL.Repositories
                 return false;
             }
         }
-
         public async Task<bool> CreatePhotoTweet(PhotoTweet model)
         {
             var user = _context.Users.FirstOrDefault(x => x.Id == model.UserId);
@@ -130,7 +134,6 @@ namespace Infrastructure.SQL.Repositories
             }
             return false;
         }
-
         public Task<PhotoTweet> GetPhotoTweet(int id)
         {
             var tweet = _context.PhotoTweets.FirstOrDefault(x => x.Id == id);
@@ -141,7 +144,6 @@ namespace Infrastructure.SQL.Repositories
 
             return Task.FromResult<PhotoTweet>(null);
         }
-
         public Task<List<ShowMostTaggedTweetModel>> MostTaggedTweet()
         {
             var sqlConnection = new SqlConnection(_connectionString);
@@ -149,7 +151,6 @@ namespace Infrastructure.SQL.Repositories
                 .ToList();
             return Task.FromResult(result);
         }
-
         public async Task<bool> EditTweet(int id, string text)
         {
             var tweet = await FindHelper(id);
@@ -178,24 +179,30 @@ namespace Infrastructure.SQL.Repositories
                 return false;
             }
         }
-
-        public async Task<Tweet> GetTextTweet(int id)
+        public async Task<GetTextTweetModel> GetTextTweet(int id)
         {
-            var tweet = _context.Tweets.Include(x => x.Tags).FirstOrDefault(x => x.Id == id);
+            var tweet = _context.Tweets.Include(x => x.Tags).Include(z => z.UserTagged).FirstOrDefault(x => x.Id == id);
+            var sqlConnection = new SqlConnection(_connectionString);
+            var userList = new List<string>();
             if (tweet != null)
             {
-                tweet.TweetViewCount += 1;
-                await _context.SaveChangesAsync();
-                return tweet;
+                foreach (var item in tweet.UserTagged)
+                {
+                    var userTagged = sqlConnection.Query<string>("FindUserFullName", new { id = item.UserId },
+                        commandType: CommandType.StoredProcedure);
+                    userList.Add(userTagged.First());
+                }
             }
-            else
+            var result = new GetTextTweetModel()
             {
-                return null;
-            }
+                Tweet = tweet,
+                UserlistName = userList
+            };
+            tweet.TweetViewCount += 1;
+            await _context.SaveChangesAsync();
+            return result;
+
         }
-
-
-
         public Task<List<Tweet>> MostViewedTweet()
         {
             var sqlConnection = new SqlConnection(_connectionString);
@@ -203,10 +210,6 @@ namespace Infrastructure.SQL.Repositories
                 .ToList();
             return Task.FromResult(result);
         }
-
-
-
-
         public Task<List<Tweet>> MostLikedTweet()
         {
             var sqlConnection = new SqlConnection(_connectionString);
@@ -214,10 +217,6 @@ namespace Infrastructure.SQL.Repositories
                 .ToList();
             return Task.FromResult(result);
         }
-
-
-
-
         public async Task<bool> LikeTweet(int id)
         {
             var tweet = _context.Tweets.FirstOrDefault(x => x.Id == id);

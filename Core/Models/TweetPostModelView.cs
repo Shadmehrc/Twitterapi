@@ -11,6 +11,6 @@ namespace Core.Models
         public string TweetText { get; set; }
         public List<string> Tags { get; set; }
         public string UserId { get; set; }
-        //public List<string> TagUsers { get; set; }
+        public List<string> TagUsers { get; set; }
     }
 }

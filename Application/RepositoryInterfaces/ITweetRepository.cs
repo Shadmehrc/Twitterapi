@@ -16,13 +16,15 @@ namespace Application.RepositoryInterfaces
         public Task<bool> CreatePhotoTweet(PhotoTweet model);
         public Task<bool> EditTweet(int id, string text);
         public Task<bool> DeleteTweet(int id);
-        public Task<Tweet> GetTextTweet(int id);
+        public Task<GetTextTweetModel> GetTextTweet(int id);
         public Task<PhotoTweet> GetPhotoTweet(int id);
         public Task<List<ShowMostTaggedTweetModel>> MostTaggedTweet();
         public Task<List<Tweet>> MostViewedTweet();
         public Task<List<Tweet>> MostLikedTweet();
         public Task<bool> LikeTweet(int id);
         public Task<bool> Retweet(RetweetModel retweetModel);
+        public Task<List<string>> FindUserTaggedTweets(string userId);
         public Task<List<TweetTags>> CreateTagsForTweet(List<string> tags);
+
     }
 }

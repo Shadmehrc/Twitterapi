@@ -19,5 +19,6 @@ namespace Application.ServiceInterfaces
         public Task<bool> EditUser(UserEditModel userModel);
         public Task<bool> DeleteUser(int id);
         public Task<List<string>> SearchUserTweets(string name);
+        public Task<List<Notification>> GetUserNotifications(string userId);
     }
 }

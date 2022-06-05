@@ -11,6 +11,7 @@ using Infrastructure.SQL.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Endpoint.Controllers
 {
@@ -64,6 +65,20 @@ namespace Endpoint.Controllers
                 return Ok(new ApiResponse().FailedToFind("Tweet not found"));
             }
 
+        }
+
+        [HttpGet("ShowUserTaggedTweet")]
+        public async Task<IActionResult> GetUserTaggedTweets(string userId)
+        {
+            var tweet = await _iTweetCrudService.FindUserTaggedTweets(userId);
+            if (tweet != null)
+            {
+                return Ok(tweet);
+            }
+            else
+            {
+                return Ok(new ApiResponse().FailedToFind("User is not tagged in any tweets!"));
+            }
         }
         [HttpGet("ShowPhotoTweet")]
         public async Task<IActionResult> GetPhotoTweet(int id)

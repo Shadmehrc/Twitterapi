@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,26 +21,46 @@ namespace Application.Services
     public class TweetCrudService : ITweetCrudService
     {
         private readonly ITweetRepository _iTweetRepository;
+        private readonly INotificationRepository _notificationRepository;
 
-        public TweetCrudService(ITweetRepository iTweetRepository, IConfiguration configuration)
+        public TweetCrudService(ITweetRepository iTweetRepository, IConfiguration configuration,  INotificationRepository notificationRepository)
         {
             _iTweetRepository = iTweetRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<bool> CreateTextTweet(TweetPostModelView tweetModel)
         {
+            var userTaggedList = new List<UserTagged>();
+            foreach (var item in tweetModel.TagUsers)
+            {
+                var userTagged = new UserTagged()
+                {
+                    UserId = item
+                };
+                userTaggedList.Add(userTagged);
+            }
+
             var tweet = new Tweet()
             {
                 Text = tweetModel.TweetText,
                 UserId = tweetModel.UserId,
             };
+          
             var model = new CreateTextTweetModel()
             {
                 TagsWords = tweetModel.Tags,
-                Tweet = tweet
+                Tweet = tweet,
+                UserTaggeds = userTaggedList
             };
             var result = await _iTweetRepository.CreateTextTweet(model);
-
+            if (result == true)
+            {
+                foreach (var item in model.UserTaggeds)
+                {
+                    var sendNotif = await _notificationRepository.SendTaggedUserNotification(model.Tweet.UserId, item.UserId);
+                }
+            }
             return result;
         }
 
@@ -113,16 +134,17 @@ namespace Application.Services
         {
             var tweet = await _iTweetRepository.GetTextTweet(id);
             var tagText = new List<string>();
-            foreach (var item in tweet.Tags)
+            foreach (var item in tweet.Tweet.Tags)
                 tagText.Add(item.Word);
 
             var model = new SearchTweetByIdModelView()
             {
-                TweetText = tweet.Text,
+                TweetText = tweet.Tweet.Text,
                 Tags = tagText,
-                TweetViewCount = tweet.TweetViewCount,
-                TagCount = tweet.TagCount,
-                UserId = tweet.UserId,
+                TweetViewCount = tweet.Tweet.TweetViewCount,
+                TagCount = tweet.Tweet.TagCount,
+                UserId = tweet.Tweet.UserId,
+                UserTagged = tweet.UserlistName
             };
             return model;
         }
@@ -138,5 +160,12 @@ namespace Application.Services
             var result = await _iTweetRepository.Retweet(retweetModel);
             return result;
         }
+
+        public async Task<List<string>> FindUserTaggedTweets(string userId)
+        {
+           var result=  await _iTweetRepository.FindUserTaggedTweets(userId);
+           return result;
+        }
+
     }
 }

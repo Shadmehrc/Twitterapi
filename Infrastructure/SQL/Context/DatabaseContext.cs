@@ -23,11 +23,14 @@ namespace Infrastructure.SQL.Context
             _iConfiguration = iConfiguration;
         }
 
-        public DbSet<User> Users { get; set; }
+        public override DbSet<User> Users { get; set; }
         public DbSet<Tweet> Tweets { get; set; }
         public DbSet<PhotoTweet> PhotoTweets { get; set; }
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<Role> Roles { get; set; }
+        public override DbSet<Role> Roles { get; set; }
+        public DbSet<TweetTags> TweetTags{ get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<UserTagged> UserTaggeds{ get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder dbContextOptionsBuilder)
         {
             dbContextOptionsBuilder.UseSqlServer(_iConfiguration["connection"]);

@@ -15,11 +15,13 @@ namespace Application.Services
     public class UserCrudService : IUserCrudService
     {
         private readonly IUserRepository _iUserRepository;
+        private readonly INotificationRepository _notificationRepository;
         private readonly VisitSummaryTweet __visitSummaryTweet;
-        public UserCrudService(IUserRepository iUserRepository, VisitSummaryTweet visitSummaryTweet)
+        public UserCrudService(IUserRepository iUserRepository, VisitSummaryTweet visitSummaryTweet, INotificationRepository notificationRepository)
         {
             _iUserRepository = iUserRepository;
             __visitSummaryTweet = visitSummaryTweet;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<bool> AddClaimToUser(AddClaimToUserModel model)
@@ -82,6 +84,12 @@ namespace Application.Services
                 }
             var fixedTweets = await __visitSummaryTweet.CheckTweets(tweetsText);
             return fixedTweets;
+        }
+
+        public  async Task<List<Notification>> GetUserNotifications(string userId)
+        {
+            var notifications =await _notificationRepository.GetUserNotifications(userId);
+            return notifications;
         }
 
 

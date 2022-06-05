@@ -12,5 +12,6 @@ namespace Core.Entities
         public string FullName { get; set; }
         public ICollection<Tweet> Tweets { get; set; }
         public ICollection<PhotoTweet> PhotoTweets { get; set; }
+        public ICollection<Notification>    Notifications { set; get; }
     }
 }

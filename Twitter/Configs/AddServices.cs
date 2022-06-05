@@ -21,12 +21,13 @@ namespace Endpoint.Configs
             services.AddSingleton<ITagRepository, TagRepository>();
             services.AddScoped<IUserCrudService, UserCrudService>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddSingleton<ITweetRepository, TweetRepository>();
-            services.AddSingleton<ITweetCrudService, TweetCrudService>();
+            services.AddScoped<ITweetRepository, TweetRepository>();
+            services.AddScoped<ITweetCrudService, TweetCrudService>();
             services.AddScoped<IRoleCrudService, RoleCrudService>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountManageService, AccountManageService>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             services.AddSingleton<VisitSummaryTweet>();
 
